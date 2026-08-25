@@ -6,6 +6,8 @@ Table users {
   password_hash varchar(255) [not null, note: 'Securely hashed password; never store plain-text passwords']
   position varchar(20) [note: 'Player position, e.g. goalkeeper, defender, midfielder, attacker']
   level varchar(20) [note: 'Player level, e.g. beginner, intermediate, advanced']
+  player_rating decimal(3,2) [default: 0.00, note: 'Player rating from 0.00 to 5.00']
+  player_rating_count integer [default: 0]
   created_at timestamp
   updated_at timestamp
 }
@@ -50,6 +52,7 @@ Table game_requests {
   game_id integer [not null]
   user_id integer [not null]
   status varchar(20) [not null, note: 'pending, accepted, rejected']
+  attendance_status varchar(20) [note: 'attended, absent']
   created_at timestamp
   updated_at timestamp
 
@@ -67,6 +70,28 @@ Table pitches {
   updated_at timestamp
 }
 
+Table player_ratings {
+  id integer [primary key, increment]
+
+  game_request_id integer [not null]
+  game_id integer [not null]
+  player_id integer [not null]
+  organizer_id integer [not null]
+
+  rating integer [not null, note: 'Rating from 1 to 5']
+  created_at timestamp
+
+  indexes {
+    (game_request_id) [unique]
+    (game_id)
+    (player_id)
+  }
+}
+
+Ref: player_ratings.game_request_id - game_requests.id
+Ref: player_ratings.game_id > games.id
+Ref: player_ratings.player_id > users.id
+Ref: player_ratings.organizer_id > users.id
 Ref: pitches.id < games.pitch_id
 Ref: users.id < games.user_id
 Ref: game_requests.game_id > games.id
