@@ -1,0 +1,75 @@
+Table users {
+  id integer [primary key, increment]
+  fullname varchar(50)
+  username varchar(20) [not null, unique]
+  phone_number varchar(10) [not null, unique, note: 'Algerian phone number, 10 digits']
+  password_hash varchar(255) [not null, note: 'Securely hashed password; never store plain-text passwords']
+  position varchar(20) [note: 'Player position, e.g. goalkeeper, defender, midfielder, attacker']
+  level varchar(20) [note: 'Player level, e.g. beginner, intermediate, advanced']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table games {
+  id integer [primary key, increment]
+  title varchar(100) [note: 'Game title displayed to users']
+  starting_time timestamp [not null]
+  ending_time timestamp [not null, note: 'Must be after starting_time']
+  pitch_id integer [not null]
+  body text [note: 'Optional game description or additional notes']
+  user_id integer [not null, note: 'User who created/offered the game']
+  status varchar(20) [not null, note: 'pending, cancelled, in progress, finished']
+  price integer [note: 'Game/pitch price in DZD']
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (pitch_id)
+    (user_id)
+    (starting_time)
+  }
+}
+
+Table needs {
+  id integer [primary key, increment]
+  name varchar(50) [not null, unique, note: 'e.g. players, opponent, football, pump']
+}
+
+Table game_needs {
+  game_id integer [not null]
+  need_id integer [not null]
+  quantity integer [default: 1, note: 'Number of items/people needed']
+
+  indexes {
+    (game_id, need_id) [pk]
+  }
+}
+
+Table game_requests {
+  id integer [primary key, increment]
+  game_id integer [not null]
+  user_id integer [not null]
+  status varchar(20) [not null, note: 'pending, accepted, rejected']
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (game_id, user_id) [unique, note: 'A user can have only one request per game']
+  }
+}
+
+Table pitches {
+  id integer [primary key, increment]
+  name varchar(100) [not null]
+  location varchar(200)
+  condition varchar(20) [note: 'good, average, bad']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: pitches.id < games.pitch_id
+Ref: users.id < games.user_id
+Ref: game_requests.game_id > games.id
+Ref: game_requests.user_id > users.id
+Ref: games.id < game_needs.game_id
+Ref: needs.id < game_needs.need_id
