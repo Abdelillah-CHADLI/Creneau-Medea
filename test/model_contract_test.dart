@@ -1,5 +1,7 @@
 import 'package:creneau_medea/data/models/game.dart';
 import 'package:creneau_medea/data/models/request.dart';
+import 'package:creneau_medea/data/services/app_data.dart';
+import 'package:creneau_medea/data/services/supabase_service.dart';
 import 'package:creneau_medea/presentation/screens/request/create_request_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -75,4 +77,45 @@ void main() {
     expect(game.status, GameStatus.finished);
     expect(game.toJson()['archived_at'], archivedAt.toIso8601String());
   });
+
+  test(
+    'ball and pump needs persist together and archived games can return',
+    () async {
+      final data = AppData(supabase: SupabaseService());
+      final game = await data.createGame(
+        title: 'اختبار الاحتياجات',
+        startingTime: now.add(const Duration(days: 1)),
+        endingTime: now.add(const Duration(days: 1, hours: 1)),
+        pitchId: 1,
+        maxPlayers: 4,
+        needNames: const ['players', 'football', 'pump'],
+      );
+      final needIds = data.local.gameNeeds
+          .where((item) => item.gameId == game.id)
+          .map((item) => item.needId)
+          .toSet();
+      final savedNames = data.local.needs
+          .where((need) => needIds.contains(need.id))
+          .map((need) => need.name)
+          .toSet();
+
+      expect(savedNames, containsAll(<String>['players', 'football', 'pump']));
+      await data.setOrganizedGameArchived(game.id, true);
+      expect(
+        (await data.myOrganizedGames()).any((item) => item.game.id == game.id),
+        isFalse,
+      );
+      expect(
+        (await data.myOrganizedGames(
+          archived: true,
+        )).any((item) => item.game.id == game.id),
+        isTrue,
+      );
+      await data.setOrganizedGameArchived(game.id, false);
+      expect(
+        (await data.myOrganizedGames()).any((item) => item.game.id == game.id),
+        isTrue,
+      );
+    },
+  );
 }
