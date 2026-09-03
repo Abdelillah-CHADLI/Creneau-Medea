@@ -1,11 +1,11 @@
 {
-    "name": "creneau_medea",
-    "short_name": "creneau_medea",
+    "name": "Créneau Médea",
+    "short_name": "Médea",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0D5C35",
+    "theme_color": "#0D5C35",
+    "description": "نظّم مبارياتك واجمع فريقك بسهولة.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
