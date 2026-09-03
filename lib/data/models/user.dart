@@ -1,10 +1,10 @@
 class User {
-  final int id;
+  final String id;
   final String fullname;
   final String username;
   final String phoneNumber;
-  final String position;
-  final String level;
+  final String? position;
+  final String? level;
   final double rating;
   final int ratingCount;
   final DateTime createdAt;
@@ -15,8 +15,8 @@ class User {
     required this.fullname,
     required this.username,
     required this.phoneNumber,
-    required this.position,
-    required this.level,
+    this.position,
+    this.level,
     required this.rating,
     required this.ratingCount,
     required this.createdAt,
@@ -25,14 +25,14 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      fullname: json['fullname'],
-      username: json['username'],
-      phoneNumber: json['phone_number'],
-      position: json['position'],
-      level: json['level'],
-      rating: (json['rating'] as num).toDouble(),
-      ratingCount: json['rating_count'] as int,
+      id: '${json['id']}',
+      fullname: json['fullname'] as String? ?? 'لاعب',
+      username: json['username'] as String? ?? '',
+      phoneNumber: json['phone_number'] as String? ?? '',
+      position: json['position'] as String?,
+      level: json['level'] as String?,
+      rating: (json['rating'] as num? ?? 0).toDouble(),
+      ratingCount: (json['rating_count'] as num? ?? 0).toInt(),
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
