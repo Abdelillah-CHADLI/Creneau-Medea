@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/reservation.dart';
 import '../../../data/models/game.dart';
+import '../../../data/models/user.dart';
 import '../../../main.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/match_card.dart';
+import '../../widgets/app_components.dart';
 import '../discover/match_details.dart';
 import '../request/create_request_screen.dart';
 import '../../settings/settings_screen.dart';
@@ -21,6 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Reservation> _joined = [];
   bool _loading = true;
   bool _error = false;
+  Map<int, int> _accepted = {};
+  Map<String, User> _organizers = {};
 
   @override
   void initState() {
@@ -38,10 +42,25 @@ class _HomeScreenState extends State<HomeScreen> {
         appData.myOrganizedGames(),
         appData.myJoinedGames(),
       ]);
+      final organized = result[0];
+      final joined = result[1];
+      final games = [...organized, ...joined].map((item) => item.game).toList();
+      Map<int, int> accepted = {};
+      Map<String, User> organizers = {};
+      try {
+        final enrichment = await Future.wait([
+          appData.acceptedRequestCounts(games.map((game) => game.id)),
+          appData.fetchProfiles(games.map((game) => game.userId)),
+        ]);
+        accepted = enrichment[0] as Map<int, int>;
+        organizers = enrichment[1] as Map<String, User>;
+      } catch (_) {}
       if (mounted) {
         setState(() {
-          _organized = result[0];
-          _joined = result[1];
+          _organized = organized;
+          _joined = joined;
+          _accepted = accepted;
+          _organizers = organizers;
         });
       }
     } catch (_) {
@@ -68,30 +87,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) => SafeArea(
     child: Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
-            children: [
-              IconButton.filledTonal(
-                tooltip: 'إنشاء مباراة',
-                onPressed: _create,
-                icon: const Icon(Icons.add),
-              ),
-              const Spacer(),
-              Text(
-                'Créneau Médea',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const Spacer(),
-              IconButton(
-                tooltip: 'الإعدادات',
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                ),
-                icon: const Icon(Icons.settings_outlined),
-              ),
-            ],
+        AppTopBar(
+          title: 'Créneau Médéa',
+          subtitle: 'لوحة لعبك الشخصية',
+          trailing: IconButton(
+            tooltip: 'الإعدادات',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
+            icon: const Icon(Icons.settings_outlined),
           ),
         ),
         Expanded(child: _body()),
@@ -113,13 +118,13 @@ class _HomeScreenState extends State<HomeScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           Container(
-            margin: const EdgeInsets.fromLTRB(20, 6, 20, 20),
-            padding: const EdgeInsets.all(22),
+            margin: const EdgeInsets.fromLTRB(16, 6, 16, 20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.primary.withAlpha(205)],
               ),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primary.withAlpha(42),
@@ -166,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Expanded(
@@ -198,17 +203,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              'مباراتك القادمة',
-              style: Theme.of(context).textTheme.titleLarge,
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SectionHeading(
+              title: 'مباراتك القادمة',
+              subtitle: 'أقرب موعد مؤكد لك',
             ),
           ),
           const SizedBox(height: 8),
           if (next == null)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -243,8 +248,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       _organized.any((r) => r.game.id == next.game.id)
                   ? 'منظّم'
                   : 'مؤكد',
+              confirmedPlayers: _accepted[next.game.id] ?? 0,
+              capacity: next.game.maxPlayers,
               status: next.game.status.name,
               price: next.game.price,
+              description: next.game.body,
+              organizerName:
+                  _organizers[next.game.userId]?.fullname ??
+                  (next.game.userId == user?.id ? user?.fullname : null),
+              organizerRating:
+                  _organizers[next.game.userId]?.rating ??
+                  (next.game.userId == user?.id ? user?.rating : null),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(

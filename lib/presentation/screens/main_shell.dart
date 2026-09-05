@@ -14,6 +14,7 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  late final PageController _pageController;
 
   final _screens = const [
     HomeScreen(),
@@ -23,33 +24,27 @@ class _MainShellState extends State<MainShell> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 280),
-          reverseDuration: const Duration(milliseconds: 200),
-          transitionBuilder: (child, animation) {
-            final slide =
-                Tween<Offset>(
-                  begin: const Offset(0.035, 0),
-                  end: Offset.zero,
-                ).animate(
-                  CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOutCubic,
-                  ),
-                );
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(position: slide, child: child),
-            );
-          },
-          child: KeyedSubtree(
-            key: ValueKey(_currentIndex),
-            child: _screens[_currentIndex],
-          ),
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index) => setState(() => _currentIndex = index),
+          children: _screens,
         ),
         bottomNavigationBar: _buildBottomNav(),
       ),
@@ -60,7 +55,7 @@ class _MainShellState extends State<MainShell> {
     return Container(
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: AppColors.border)),
-        color: AppColors.background,
+        color: Colors.white,
       ),
       child: SafeArea(
         child: Padding(
@@ -100,7 +95,12 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _selectTab(int index) {
-    if (index != _currentIndex) setState(() => _currentIndex = index);
+    if (index == _currentIndex) return;
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 340),
+      curve: Curves.easeOutCubic,
+    );
   }
 }
 
@@ -127,10 +127,10 @@ class _NavItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
+              duration: const Duration(milliseconds: 260),
               curve: Curves.easeOutCubic,
-              width: 42,
-              height: 42,
+              width: isActive ? 42 : 38,
+              height: isActive ? 42 : 38,
               decoration: BoxDecoration(
                 color: isActive ? AppColors.primary : Colors.white,
                 shape: BoxShape.circle,
@@ -150,7 +150,7 @@ class _NavItem extends StatelessWidget {
                   icon,
                   key: ValueKey(isActive),
                   size: 22,
-                  color: isActive ? Colors.white : AppColors.neutralMuted,
+                  color: isActive ? Colors.white : AppColors.slate,
                 ),
               ),
             ),
@@ -162,7 +162,7 @@ class _NavItem extends StatelessWidget {
                 fontSize: 11,
                 height: 1.25,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                color: isActive ? AppColors.primary : AppColors.neutralMuted,
+                color: isActive ? AppColors.primary : AppColors.slate,
               ),
             ),
           ],

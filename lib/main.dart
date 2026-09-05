@@ -41,7 +41,7 @@ class CreneauMedeaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Créneau Médea',
+      title: 'Créneau Médéa',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       locale: const Locale('ar'),

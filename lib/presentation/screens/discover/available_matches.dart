@@ -6,6 +6,7 @@ import '../../../main.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/match_card.dart';
+import '../../widgets/app_components.dart';
 import '../request/create_request_screen.dart';
 import 'match_details.dart';
 
@@ -25,6 +26,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   DateTime? _date;
   int? _pitchId;
   String? _need;
+  String _query = '';
   bool _availableOnly = true;
   bool _loading = true;
   bool _error = false;
@@ -72,6 +74,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   List<Game> get _filtered => _games.where((game) {
+    if (game.status == GameStatus.cancelled ||
+        game.status == GameStatus.finished) {
+      return false;
+    }
     final accepted = _accepted[game.id] ?? 0;
     if (_availableOnly &&
         (game.status != GameStatus.pending || accepted >= game.maxPlayers)) {
@@ -82,6 +88,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }
     if (_pitchId != null && game.pitchId != _pitchId) return false;
     if (_need != null && !(_needs[game.id] ?? {}).contains(_need)) return false;
+    final query = _query.trim().toLowerCase();
+    if (query.isNotEmpty) {
+      final pitchName = _pitch(game.pitchId)?.name.toLowerCase() ?? '';
+      final organizer = _organizers[game.userId]?.fullname.toLowerCase() ?? '';
+      final title = game.title?.toLowerCase() ?? '';
+      if (!title.contains(query) &&
+          !pitchName.contains(query) &&
+          !organizer.contains(query)) {
+        return false;
+      }
+    }
     return true;
   }).toList();
 
@@ -133,49 +150,42 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) => SafeArea(
     child: Column(
       children: [
+        AppTopBar(
+          title: 'اكتشف المباريات',
+          subtitle: 'اعثر على المباراة المناسبة لك',
+          leading: IconButton.filledTonal(
+            tooltip: 'إنشاء مباراة',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CreateRequestScreen()),
+            ),
+            icon: const Icon(Icons.add),
+          ),
+          trailing: Badge(
+            isLabelVisible: _activeFilters > 0,
+            label: Text('$_activeFilters'),
+            child: IconButton(
+              tooltip: 'تصفية المباريات',
+              onPressed: _showFilters,
+              icon: const Icon(Icons.tune_rounded),
+            ),
+          ),
+        ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
-          child: Row(
-            children: [
-              IconButton.filledTonal(
-                tooltip: 'إنشاء مباراة',
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CreateRequestScreen(),
-                  ),
-                ),
-                icon: const Icon(Icons.add),
-              ),
-              const Spacer(),
-              Column(
-                children: [
-                  Text(
-                    'اكتشف المباريات',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  Text(
-                    'ابحث حسب اليوم والملعب والاحتياج',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Badge(
-                isLabelVisible: _activeFilters > 0,
-                label: Text('$_activeFilters'),
-                child: IconButton(
-                  tooltip: 'تصفية المباريات',
-                  onPressed: _showFilters,
-                  icon: const Icon(Icons.tune_rounded),
-                ),
-              ),
-            ],
+          padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+          child: TextField(
+            onChanged: (value) => setState(() => _query = value),
+            textInputAction: TextInputAction.search,
+            decoration: const InputDecoration(
+              hintText: 'ابحث بعنوان المباراة، الملعب أو المنظّم',
+              prefixIcon: Icon(Icons.search_rounded),
+              suffixIcon: Icon(Icons.sports_soccer_outlined),
+            ),
           ),
         ),
         if (!_loading && !_error)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Row(
               children: [
                 Text(
@@ -227,6 +237,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
             time: _time(game.startingTime),
             location: pitch?.name ?? 'ملعب غير متاح',
             playersCount: '$count/${game.maxPlayers}',
+            confirmedPlayers: count,
+            capacity: game.maxPlayers,
             status: game.status.name,
             isFull:
                 count >= game.maxPlayers || game.status != GameStatus.pending,
@@ -270,7 +282,7 @@ String _needLabel(String value) =>
       'opponent': 'خصم',
       'football': 'كرة',
       'pump': 'مضخة',
-      'lighting': 'إضاءة',
+      'lighting': 'مضخة',
       'pitch_available': 'ملعب متاح',
     }[value] ??
     value;

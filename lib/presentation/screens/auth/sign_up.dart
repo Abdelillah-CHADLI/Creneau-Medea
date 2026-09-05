@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../main.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_components.dart';
 import '../main_shell.dart';
 import 'sign_in.dart';
 
@@ -67,20 +68,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            border: Border.symmetric(
-              vertical: BorderSide(color: AppColors.accent, width: 2),
-            ),
-          ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: AppConstrainedContent(
+              maxWidth: 540,
               child: Column(
                 children: [
-                  const SizedBox(height: 16),
+                  const BrandLogoTile(size: 62),
+                  const SizedBox(height: 14),
                   Text(
-                    'Créneau Médea',
+                    'Créneau Médéa',
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   const SizedBox(height: 8),
@@ -106,21 +104,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget _buildFormCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withAlpha(128)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(8),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(20),
       child: Form(
         key: _formKey,
         child: Column(
@@ -343,38 +328,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget _buildSignUpButton() {
     return SizedBox(
       width: double.infinity,
-      height: 54,
-      child: ElevatedButton(
-        onPressed: _handleSignUp,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 52),
+        child: ElevatedButton(
+          onPressed: _handleSignUp,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            elevation: 0,
           ),
-          elevation: 0,
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'إنشاء حساب',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          child: _isLoading
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
                   ),
-                  SizedBox(width: 10),
-                  Icon(Icons.arrow_forward, size: 22),
-                ],
-              ),
+                )
+              : const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('إنشاء حساب'),
+                    SizedBox(width: 10),
+                    Icon(Icons.arrow_forward, size: 22),
+                  ],
+                ),
+        ),
       ),
     );
   }

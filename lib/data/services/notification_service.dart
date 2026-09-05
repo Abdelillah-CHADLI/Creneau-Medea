@@ -87,7 +87,7 @@ class NotificationService {
 
     const androidDetails = AndroidNotificationDetails(
       'creneau_medea',
-      'Creneau MeDea',
+      'Créneau Médéa',
       channelDescription: 'App notifications',
       importance: Importance.high,
       priority: Priority.high,
@@ -120,7 +120,7 @@ class NotificationService {
 
     const androidDetails = AndroidNotificationDetails(
       'creneau_medea',
-      'Creneau MeDea',
+      'Créneau Médéa',
       channelDescription: 'Scheduled reminders',
       importance: Importance.high,
       priority: Priority.high,

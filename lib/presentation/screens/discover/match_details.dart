@@ -7,6 +7,7 @@ import '../../../data/models/user.dart';
 import '../../../main.dart';
 import '../../theme/app_theme.dart';
 import '../my_matches/player_profile.dart';
+import '../../widgets/app_components.dart';
 
 class MatchDetailsScreen extends StatefulWidget {
   final int gameId;
@@ -98,20 +99,13 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            border: Border.symmetric(
-              vertical: BorderSide(color: AppColors.accent, width: 2),
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(context),
-                Expanded(child: _buildBody(context)),
-                if (_game != null) _buildBottomBar(context),
-              ],
-            ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(child: _buildBody(context)),
+              if (_game != null) _buildBottomBar(context),
+            ],
           ),
         ),
       ),
@@ -119,33 +113,18 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: const Icon(
-              Icons.arrow_back_ios_new,
-              size: 20,
-              color: AppColors.textDark,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            'تفاصيل المباراة',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const Spacer(),
-          GestureDetector(
-            onTap: _share,
-            child: const Icon(
-              Icons.share_outlined,
-              size: 20,
-              color: AppColors.textDark,
-            ),
-          ),
-        ],
+    return AppTopBar(
+      title: 'تفاصيل المباراة',
+      showLogo: false,
+      leading: IconButton(
+        tooltip: 'رجوع',
+        onPressed: () => Navigator.of(context).pop(),
+        icon: const Icon(Icons.arrow_forward_ios, size: 20),
+      ),
+      trailing: IconButton(
+        tooltip: 'مشاركة المباراة',
+        onPressed: _share,
+        icon: const Icon(Icons.share_outlined),
       ),
     );
   }
@@ -176,7 +155,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           _PitchHero(pitch: _pitch),
           const SizedBox(height: 8),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: AppColors.card,
@@ -196,6 +175,11 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                   label: 'الحالة',
                   value: _statusLabel(game.status),
                   iconColor: AppColors.primary,
+                ),
+                const SizedBox(height: 10),
+                SquadMeter(
+                  confirmed: _acceptedCount,
+                  capacity: game.maxPlayers,
                 ),
                 const SizedBox(height: 12),
                 _InfoRow(
@@ -228,12 +212,24 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                   iconColor: AppColors.primary,
                 ),
                 const SizedBox(height: 12),
-                _InfoRow(
-                  icon: Icons.access_time,
-                  label: 'الوقت',
-                  value:
-                      '${_formatTime(game.startingTime)} - ${_formatTime(game.endingTime)}',
-                  iconColor: AppColors.primary,
+                Row(
+                  children: [
+                    Expanded(
+                      child: _TimeBlock(
+                        label: 'وقت البداية',
+                        value: _formatTime(game.startingTime),
+                        icon: Icons.play_circle_outline,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _TimeBlock(
+                        label: 'وقت النهاية',
+                        value: _formatTime(game.endingTime),
+                        icon: Icons.stop_circle_outlined,
+                      ),
+                    ),
+                  ],
                 ),
                 if (game.price != null) ...[
                   const SizedBox(height: 12),
@@ -266,7 +262,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
 
   Widget _buildNeeds(BuildContext context) => Container(
     width: double.infinity,
-    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
     padding: const EdgeInsets.all(18),
     decoration: BoxDecoration(
       color: AppColors.card,
@@ -319,7 +315,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
               ),
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.card,
@@ -405,8 +401,8 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 52,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52),
           child: ElevatedButton.icon(
             onPressed: _joinEnabled ? _join : null,
             icon: _joining
@@ -419,10 +415,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                     ),
                   )
                 : const Icon(Icons.directions_run, size: 22),
-            label: Text(
-              _joinLabel,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            label: Text(_joinLabel),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -463,7 +456,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
         'opponent': 'خصم',
         'football': 'كرة',
         'pump': 'مضخة',
-        'lighting': 'إضاءة',
+        'lighting': 'مضخة',
         'pitch_available': 'ملعب متاح',
       }[value] ??
       value;
@@ -501,12 +494,47 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
   }
 }
 
+class _TimeBlock extends StatelessWidget {
+  const _TimeBlock({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: AppColors.primarySurface,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: AppColors.primary.withAlpha(28)),
+    ),
+    child: Row(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 20),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: Theme.of(context).textTheme.bodySmall),
+            Text(value, style: Theme.of(context).textTheme.titleMedium),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
 class _PitchHero extends StatelessWidget {
   final Pitch? pitch;
   const _PitchHero({this.pitch});
   @override
   Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     height: 190,
     width: double.infinity,
     decoration: BoxDecoration(

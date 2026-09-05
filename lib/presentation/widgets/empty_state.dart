@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-enum EmptyStateType { noMatches, loadError }
+enum EmptyStateType { noMatches, noHistory, loadError }
 
 class EmptyState extends StatelessWidget {
   final EmptyStateType type;
@@ -11,9 +11,11 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return type == EmptyStateType.noMatches
-        ? _buildNoMatches(context)
-        : _buildLoadError(context);
+    return switch (type) {
+      EmptyStateType.noMatches => _buildNoMatches(context),
+      EmptyStateType.noHistory => _buildNoHistory(context),
+      EmptyStateType.loadError => _buildLoadError(context),
+    };
   }
 
   Widget _buildNoMatches(BuildContext context) {
@@ -51,30 +53,64 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 28),
-            SizedBox(
-              height: 60,
-              child: ElevatedButton.icon(
-                onPressed: onAction,
-                icon: const Icon(Icons.add, size: 20),
-                label: const Text(
-                  'إنشاء طلب',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            if (onAction != null)
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 52),
+                child: ElevatedButton.icon(
+                  onPressed: onAction,
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text('إنشاء طلب'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 0,
                 ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildNoHistory(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 92,
+            height: 92,
+            decoration: const BoxDecoration(
+              color: AppColors.neutralSurface,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.history_toggle_off,
+              size: 46,
+              color: AppColors.neutralMuted,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'لا توجد مباريات سابقة بعد',
+            style: Theme.of(context).textTheme.headlineSmall,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'ستظهر هنا المباريات التي نظّمتها أو شاركت فيها بعد انتهائها.',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _buildLoadError(BuildContext context) {
     return Center(
@@ -111,15 +147,12 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 28),
-            SizedBox(
-              height: 48,
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
               child: OutlinedButton.icon(
                 onPressed: onAction,
                 icon: const Icon(Icons.refresh, size: 20),
-                label: const Text(
-                  'إعادة المحاولة',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                ),
+                label: const Text('إعادة المحاولة'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.textDark,
                   side: const BorderSide(color: AppColors.border),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../main.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_components.dart';
 import '../main_shell.dart';
 import 'sign_up.dart';
 
@@ -54,51 +55,63 @@ class _SignInScreenState extends State<SignInScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            border: Border.symmetric(
-              vertical: BorderSide(color: AppColors.accent, width: 2),
-            ),
-          ),
-          child: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 24,
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildLogo(),
-                      const SizedBox(height: 20),
-                      Text(
-                        'تسجيل الدخول',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 40),
-                      _buildFieldLabel('البريد الإلكتروني'),
-                      const SizedBox(height: 8),
-                      _buildUsernameField(),
-                      const SizedBox(height: 20),
-                      _buildFieldLabel('كلمة المرور'),
-                      const SizedBox(height: 8),
-                      _buildPasswordField(),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: _showPasswordReset,
-                          child: const Text('نسيت كلمة المرور؟'),
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: AppConstrainedContent(
+                maxWidth: 500,
+                child: Column(
+                  children: [
+                    const BrandLogoTile(size: 70),
+                    const SizedBox(height: 18),
+                    Text(
+                      'مرحباً بعودتك',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'سجّل الدخول ورتّب مباراتك القادمة',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 24),
+                    AppSurfaceCard(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'تسجيل الدخول',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 20),
+                            _buildFieldLabel('البريد الإلكتروني'),
+                            const SizedBox(height: 8),
+                            _buildUsernameField(),
+                            const SizedBox(height: 20),
+                            _buildFieldLabel('كلمة المرور'),
+                            const SizedBox(height: 8),
+                            _buildPasswordField(),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton(
+                                onPressed: _showPasswordReset,
+                                child: const Text('نسيت كلمة المرور؟'),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            _buildSignInButton(),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      _buildSignInButton(),
-                      const SizedBox(height: 20),
-                      _buildSignUpLink(),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 18),
+                    _buildSignUpLink(),
+                    const SizedBox(height: 18),
+                    const _TrustNote(),
+                  ],
                 ),
               ),
             ),
@@ -152,19 +165,6 @@ class _SignInScreenState extends State<SignInScreen> {
     } finally {
       controller.dispose();
     }
-  }
-
-  Widget _buildLogo() {
-    return Container(
-      width: 72,
-      height: 72,
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.primaryLight, width: 2),
-      ),
-      child: const Icon(Icons.sports_soccer, size: 36, color: Colors.white),
-    );
   }
 
   Widget _buildFieldLabel(String label) {
@@ -274,38 +274,37 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget _buildSignInButton() {
     return SizedBox(
       width: double.infinity,
-      height: 54,
-      child: ElevatedButton(
-        onPressed: _handleSignIn,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 52),
+        child: ElevatedButton(
+          onPressed: _handleSignIn,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            elevation: 0,
           ),
-          elevation: 0,
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'دخول',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          child: _isLoading
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
                   ),
-                  SizedBox(width: 10),
-                  Icon(Icons.arrow_forward, size: 22),
-                ],
-              ),
+                )
+              : const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('دخول'),
+                    SizedBox(width: 10),
+                    Icon(Icons.arrow_forward, size: 22),
+                  ],
+                ),
+        ),
       ),
     );
   }
@@ -338,4 +337,21 @@ class _SignInScreenState extends State<SignInScreen> {
       ],
     );
   }
+}
+
+class _TrustNote extends StatelessWidget {
+  const _TrustNote();
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      const Icon(Icons.shield_outlined, size: 17, color: AppColors.primary),
+      const SizedBox(width: 6),
+      Text(
+        'بياناتك تستعمل فقط لتنظيم المباريات والتواصل',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+    ],
+  );
 }

@@ -81,6 +81,7 @@ class _EditOrganizedMatchScreenState extends State<EditOrganizedMatchScreen> {
     if (_title.text.trim().isEmpty ||
         capacity == null ||
         capacity < 1 ||
+        capacity > 13 ||
         price != null && price < 0 ||
         !_end.isAfter(_start)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,8 +140,8 @@ class _EditOrganizedMatchScreenState extends State<EditOrganizedMatchScreen> {
           _label('ملاحظات'),
           TextField(controller: _notes, maxLines: 4),
           const SizedBox(height: 28),
-          SizedBox(
-            height: 58,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 52),
             child: ElevatedButton(
               onPressed: _saving ? null : _save,
               child: _saving

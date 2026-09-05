@@ -71,14 +71,10 @@ class CancellationDialog extends StatelessWidget {
               const SizedBox(height: 28),
               SizedBox(
                 width: double.infinity,
-                height: 50,
                 child: ElevatedButton.icon(
                   onPressed: onConfirm,
                   icon: const Icon(Icons.close, size: 20),
-                  label: const Text(
-                    'إلغاء الطلب',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                  label: const Text('إلغاء الطلب'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.tertiary,
                     foregroundColor: Colors.white,
@@ -92,7 +88,6 @@ class CancellationDialog extends StatelessWidget {
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                height: 50,
                 child: OutlinedButton(
                   onPressed: onCancel,
                   style: OutlinedButton.styleFrom(
@@ -102,10 +97,7 @@ class CancellationDialog extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'الاحتفاظ بالطلب',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                  child: const Text('الاحتفاظ بالطلب'),
                 ),
               ),
             ],

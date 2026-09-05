@@ -87,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Card(
             child: ListTile(
               leading: Icon(Icons.info_outline, color: AppColors.primary),
-              title: Text('Créneau Médea'),
+              title: Text('Créneau Médéa'),
               subtitle: Text('الإصدار 1.0.0'),
             ),
           ),

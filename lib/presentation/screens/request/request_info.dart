@@ -220,7 +220,6 @@ class _RequestInfoStepState extends State<RequestInfoStep> {
       padding: const EdgeInsets.all(20),
       child: SizedBox(
         width: double.infinity,
-        height: 54,
         child: ElevatedButton(
           onPressed: _selected != null ? widget.onNext : null,
           style: ElevatedButton.styleFrom(

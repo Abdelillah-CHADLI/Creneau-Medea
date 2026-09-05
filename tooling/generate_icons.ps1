@@ -1,29 +1,22 @@
 Add-Type -AssemblyName System.Drawing
 
 $root = Split-Path -Parent $PSScriptRoot
+$sourcePath = Join-Path $root 'assets/images/app_logo.png'
 
 function New-AppIcon([int]$size) {
+  if (-not (Test-Path -LiteralPath $sourcePath)) {
+    throw "Stitch app logo is missing: $sourcePath"
+  }
   $bitmap = New-Object System.Drawing.Bitmap $size, $size
   $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+  $graphics.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
+  $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+  $graphics.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
   $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
-  $graphics.Clear([System.Drawing.Color]::FromArgb(12, 82, 48))
-
-  $inset = [int]($size * .10)
-  $field = New-Object System.Drawing.Rectangle $inset, $inset, ($size - $inset * 2), ($size - $inset * 2)
-  $pen = New-Object System.Drawing.Pen ([System.Drawing.Color]::White), ([Math]::Max(2, [int]($size * .035)))
-  $graphics.DrawRectangle($pen, $field)
-  $middle = [int]($size / 2)
-  $graphics.DrawLine($pen, $inset, $middle, ($size - $inset), $middle)
-  $circleSize = [int]($size * .28)
-  $graphics.DrawEllipse($pen, ($middle - $circleSize / 2), ($middle - $circleSize / 2), $circleSize, $circleSize)
-
-  $ballSize = [int]($size * .22)
-  $ballRect = [System.Drawing.Rectangle]::new(
-    [int]($size * .60), [int]($size * .57), $ballSize, $ballSize
-  )
-  $graphics.FillEllipse([System.Drawing.Brushes]::White, $ballRect)
-  $ballPen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(12, 82, 48)), ([Math]::Max(1, [int]($size * .018)))
-  $graphics.DrawEllipse($ballPen, $ballRect)
+  $graphics.Clear([System.Drawing.Color]::FromArgb(248, 250, 252))
+  $source = [System.Drawing.Image]::FromFile($sourcePath)
+  $graphics.DrawImage($source, 0, 0, $size, $size)
+  $source.Dispose()
   $graphics.Dispose()
   return $bitmap
 }

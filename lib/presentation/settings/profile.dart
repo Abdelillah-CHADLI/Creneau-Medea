@@ -8,6 +8,7 @@ import 'edit_profile.dart';
 import 'match_history.dart';
 import 'settings_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
+import '../widgets/app_components.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -21,6 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _username;
   String? _position;
   String? _level;
+  String? _phone;
   double _rating = 0;
   int _ratingCount = 0;
   List<Reservation> _organized = [];
@@ -74,6 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _username = user.username;
         _position = user.position;
         _level = user.level;
+        _phone = user.phoneNumber;
         _rating = user.rating;
         _ratingCount = user.ratingCount;
         _loading = false;
@@ -91,57 +94,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border.symmetric(
-          vertical: BorderSide(color: AppColors.accent, width: 2),
-        ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(child: _buildBody(context)),
-          ],
-        ),
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildHeader(),
+          Expanded(child: _buildBody(context)),
+        ],
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
-            child: const Icon(
-              Icons.settings_outlined,
-              size: 24,
-              color: AppColors.textDark,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            'Créneau Médea',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textDark,
-            ),
-          ),
-          const Spacer(),
-          const SizedBox(width: 24),
-        ],
+    return AppTopBar(
+      title: 'ملفي الشخصي',
+      subtitle: 'هويتك وإحصاءاتك كلاعب',
+      trailing: IconButton(
+        tooltip: 'الإعدادات',
+        onPressed: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
+        icon: const Icon(Icons.settings_outlined),
       ),
     );
   }
 
   Widget _buildBody(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: [
           _buildProfileCard(context),
@@ -165,8 +144,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
@@ -189,11 +169,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            _loading ? '...' : _name!,
+            _loading ? '...' : (_name ?? 'لاعب Créneau'),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 4),
-          Text('@$_username', style: Theme.of(context).textTheme.bodyMedium),
+          if (_username?.isNotEmpty ?? false)
+            Text('@$_username', style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -207,6 +188,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Chip(
                   avatar: const Icon(Icons.trending_up, size: 16),
                   label: Text(_levelLabel(_level!)),
+                ),
+              if (_phone?.isNotEmpty ?? false)
+                Chip(
+                  avatar: const Icon(Icons.phone_outlined, size: 16),
+                  label: Text(_phone!),
                 ),
             ],
           ),
@@ -373,16 +359,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSignOut(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
-      child: OutlinedButton.icon(
-        onPressed: _signOut,
-        icon: const Icon(Icons.logout, size: 20),
-        label: const Text('تسجيل الخروج'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.tertiary,
-          side: const BorderSide(color: AppColors.tertiary),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 50),
+        child: OutlinedButton.icon(
+          onPressed: _signOut,
+          icon: const Icon(Icons.logout, size: 20),
+          label: const Text('تسجيل الخروج'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.tertiary,
+            side: const BorderSide(color: AppColors.tertiary),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
       ),

@@ -6,6 +6,7 @@ import '../../../data/models/player_rating.dart';
 import '../../../main.dart';
 import '../../theme/app_theme.dart';
 import 'player_profile.dart';
+import '../../widgets/app_components.dart';
 
 class MatchManagementScreen extends StatefulWidget {
   final int gameId;
@@ -200,13 +201,33 @@ class _MatchManagementScreenState extends State<MatchManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.warningSurface,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '$score من 5 · ${_ratingLabel(score)}',
+                      style: const TextStyle(
+                        color: AppColors.warning,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    height: 52,
-                    child: FilledButton.icon(
-                      onPressed: () => Navigator.pop(context, true),
-                      icon: const Icon(Icons.check),
-                      label: const Text('حفظ التقييم'),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 52),
+                      child: FilledButton.icon(
+                        onPressed: () => Navigator.pop(context, true),
+                        icon: const Icon(Icons.check),
+                        label: const Text('حفظ التقييم'),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -253,19 +274,12 @@ class _MatchManagementScreenState extends State<MatchManagementScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            border: Border.symmetric(
-              vertical: BorderSide(color: AppColors.accent, width: 2),
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(context),
-                Expanded(child: _buildBody(context)),
-              ],
-            ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(child: _buildBody(context)),
+            ],
           ),
         ),
       ),
@@ -273,26 +287,14 @@ class _MatchManagementScreenState extends State<MatchManagementScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: const Icon(
-              Icons.arrow_forward_ios,
-              size: 22,
-              color: AppColors.textDark,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            'إدارة اللاعبين',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const Spacer(),
-          const SizedBox(width: 26),
-        ],
+    return AppTopBar(
+      title: 'إدارة اللاعبين',
+      subtitle: _game?.title,
+      showLogo: false,
+      leading: IconButton(
+        tooltip: 'رجوع',
+        onPressed: () => Navigator.of(context).pop(),
+        icon: const Icon(Icons.arrow_forward_ios, size: 20),
       ),
     );
   }
@@ -396,7 +398,7 @@ class _MatchManagementScreenState extends State<MatchManagementScreen> {
           ),
           const Spacer(),
           Text(
-            'مباراة #${widget.gameId}',
+            _game?.title ?? 'المباراة',
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ],

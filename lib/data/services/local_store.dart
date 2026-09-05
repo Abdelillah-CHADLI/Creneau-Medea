@@ -112,7 +112,6 @@ class LocalStore {
       Need(id: 1, name: 'players'),
       Need(id: 2, name: 'opponent'),
       Need(id: 3, name: 'football'),
-      Need(id: 4, name: 'lighting'),
       Need(id: 5, name: 'pump'),
       Need(id: 6, name: 'pitch_available'),
     ]);

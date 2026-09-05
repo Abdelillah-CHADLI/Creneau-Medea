@@ -275,14 +275,15 @@ class ConfirmRequestStep extends StatelessWidget {
                   'players': 'نحتاج لاعبين',
                   'opponent': 'نبحث عن خصم',
                   'football': 'كرة مطلوبة',
-                  'lighting': 'إضاءة مطلوبة',
+                  // Compatibility with requests created by early app builds.
+                  'lighting': 'مضخة مطلوبة',
                   'pump': 'مضخة مطلوبة',
                 };
                 const icons = {
                   'players': Icons.people_outline,
                   'opponent': Icons.sports_mma_outlined,
                   'football': Icons.sports_soccer,
-                  'lighting': Icons.lightbulb_outline,
+                  'lighting': Icons.air,
                   'pump': Icons.air,
                 };
                 final label = labels[eq] ?? eq;
@@ -338,7 +339,6 @@ class ConfirmRequestStep extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       child: SizedBox(
         width: double.infinity,
-        height: 54,
         child: ElevatedButton(
           onPressed: onPublish,
           style: ElevatedButton.styleFrom(

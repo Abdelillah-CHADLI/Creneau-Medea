@@ -1,6 +1,6 @@
-# Créneau Médea
+# Créneau Médéa
 
-A football pitch / match booking app for Médea (RTL Arabic UI).
+A football pitch / match booking app for Médéa (RTL Arabic UI).
 
 ```bash
 flutter run --dart-define=SUPABASE_URL=https://YOUR-PROJECT.supabase.co --dart-define=SUPABASE_ANON_KEY=YOUR_ANON_KEY

@@ -444,7 +444,6 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
         children: [
           Expanded(
             child: SizedBox(
-              height: 54,
               child: ElevatedButton(
                 onPressed: _canProceed
                     ? () {
@@ -480,7 +479,6 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
           const SizedBox(width: 12),
           Expanded(
             child: SizedBox(
-              height: 54,
               child: OutlinedButton(
                 onPressed: () {
                   Navigator.of(context).pop();

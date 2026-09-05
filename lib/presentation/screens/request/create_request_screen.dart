@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/pitch.dart';
 import '../../../main.dart';
-import '../../theme/app_theme.dart';
 import 'create_request_data.dart';
 import 'request_info.dart';
 import 'request_details.dart';
@@ -125,38 +124,31 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            border: Border.symmetric(
-              vertical: BorderSide(color: AppColors.accent, width: 2),
-            ),
-          ),
-          child: SafeArea(
-            child: IndexedStack(
-              index: _currentStep,
-              children: [
-                RequestInfoStep(
-                  data: _data,
-                  onNext: _nextStep,
-                  onBack: _prevStep,
-                ),
-                RequestDetailsStep(
-                  data: _data,
-                  onNext: _nextStep,
-                  onBack: _prevStep,
-                ),
-                RequestNeedsStep(
-                  data: _data,
-                  onNext: _nextStep,
-                  onBack: _prevStep,
-                ),
-                ConfirmRequestStep(
-                  data: _data,
-                  onPublish: _publish,
-                  onBack: _prevStep,
-                ),
-              ],
-            ),
+        body: SafeArea(
+          child: IndexedStack(
+            index: _currentStep,
+            children: [
+              RequestInfoStep(
+                data: _data,
+                onNext: _nextStep,
+                onBack: _prevStep,
+              ),
+              RequestDetailsStep(
+                data: _data,
+                onNext: _nextStep,
+                onBack: _prevStep,
+              ),
+              RequestNeedsStep(
+                data: _data,
+                onNext: _nextStep,
+                onBack: _prevStep,
+              ),
+              ConfirmRequestStep(
+                data: _data,
+                onPublish: _publish,
+                onBack: _prevStep,
+              ),
+            ],
           ),
         ),
       ),

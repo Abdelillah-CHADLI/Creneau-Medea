@@ -9,6 +9,7 @@ import 'match_management.dart';
 import 'edit_organized_matches.dart';
 import 'archived_matches.dart';
 import '../../widgets/cancellation_dialog.dart';
+import '../../widgets/app_components.dart';
 
 class MyMatchesScreen extends StatefulWidget {
   const MyMatchesScreen({super.key});
@@ -151,51 +152,29 @@ class _MyMatchesScreenState extends State<MyMatchesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border.symmetric(
-          vertical: BorderSide(color: AppColors.accent, width: 2),
-        ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildToggleTabs(),
-            Expanded(child: _buildBody()),
-          ],
-        ),
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildHeader(),
+          _buildToggleTabs(),
+          Expanded(child: _buildBody()),
+        ],
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          IconButton(
-            tooltip: 'المباريات المؤرشفة',
-            onPressed: () => Navigator.of(context)
-                .push(
-                  MaterialPageRoute(
-                    builder: (_) => const ArchivedMatchesScreen(),
-                  ),
-                )
-                .then((_) => _load()),
-            icon: const Icon(
-              Icons.inventory_2_outlined,
-              color: AppColors.textDark,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            'Créneau Médea',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const Spacer(),
-          const SizedBox(width: 38),
-        ],
+    return AppTopBar(
+      title: 'مبارياتي',
+      subtitle: 'نظّم، تابع وأرشف مبارياتك',
+      trailing: IconButton(
+        tooltip: 'المباريات المؤرشفة',
+        onPressed: () => Navigator.of(context)
+            .push(
+              MaterialPageRoute(builder: (_) => const ArchivedMatchesScreen()),
+            )
+            .then((_) => _load()),
+        icon: const Icon(Icons.inventory_2_outlined),
       ),
     );
   }
@@ -531,24 +510,15 @@ class _MyMatchesScreenState extends State<MyMatchesScreen> {
   }
 
   Widget _statusBadge(GameStatus status) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: status == GameStatus.cancelled
-            ? AppColors.tertiarySurface
-            : AppColors.primarySurface,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        _statusLabel(status),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: status == GameStatus.cancelled
-              ? AppColors.tertiary
-              : AppColors.primary,
-        ),
-      ),
+    return AppStatusPill(
+      label: _statusLabel(status),
+      tone: status == GameStatus.cancelled
+          ? AppStatusTone.danger
+          : status == GameStatus.finished
+          ? AppStatusTone.neutral
+          : status == GameStatus.inProgress
+          ? AppStatusTone.warning
+          : AppStatusTone.success,
     );
   }
 

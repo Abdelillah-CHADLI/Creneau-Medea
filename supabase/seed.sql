@@ -1,5 +1,5 @@
 -- =============================================================================
--- Créneau Médea — Seed data (optional, run AFTER schema.sql)
+-- Créneau Médéa — Seed data (optional, run AFTER schema.sql)
 -- =============================================================================
 
 -- Core need types used across the app

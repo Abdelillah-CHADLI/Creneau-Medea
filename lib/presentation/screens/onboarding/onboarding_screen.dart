@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_components.dart';
 import '../auth/sign_in.dart';
 import '../../../main.dart';
 
@@ -17,17 +18,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   static const _pages = [
     _OnboardingData(
       icon: Icons.calendar_month_outlined,
+      asset: 'assets/images/onboarding_pitch.jpg',
       title: 'احجز أوقاتك بسهولة',
       subtitle:
           'اختر الملعب والوقت المناسب وانشر طلبك للاعبين في ثوانٍ معدودة.',
     ),
     _OnboardingData(
       icon: Icons.people_outline,
+      asset: 'assets/images/onboarding_team.jpg',
       title: 'العب مع الآخرين',
       subtitle: 'انضم لمباريات موجودة أو ابحث عن منافسين لفريقك في منطقتك.',
     ),
     _OnboardingData(
       icon: Icons.star_outline,
+      asset: 'assets/images/onboarding_rating.jpg',
       title: 'تقييم وتطور',
       subtitle: 'قيّم اللاعبين بعد كل مباراة وتابع مستواك مع الوقت.',
     ),
@@ -44,8 +48,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _goToSignIn() {
-    storageService.setOnboardingSeen(true);
+  Future<void> _goToSignIn() async {
+    await storageService.setOnboardingSeen(true);
+    if (!mounted) return;
     Navigator.of(
       context,
     ).pushReplacement(MaterialPageRoute(builder: (_) => const SignInScreen()));
@@ -62,31 +67,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            border: Border.symmetric(
-              vertical: BorderSide(color: AppColors.accent, width: 2),
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                _buildSkipButton(),
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: _pages.length,
-                    onPageChanged: (index) {
-                      setState(() => _currentPage = index);
-                    },
-                    itemBuilder: (context, index) {
-                      return _OnboardingPage(data: _pages[index]);
-                    },
-                  ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildSkipButton(),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _pages.length,
+                  onPageChanged: (index) {
+                    setState(() => _currentPage = index);
+                  },
+                  itemBuilder: (context, index) {
+                    return _OnboardingPage(data: _pages[index]);
+                  },
                 ),
-                _buildBottomSection(),
-              ],
-            ),
+              ),
+              _buildBottomSection(),
+            ],
           ),
         ),
       ),
@@ -110,39 +108,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final isLast = _currentPage == _pages.length - 1;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
       child: Column(
         children: [
           _buildDots(),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            height: 60,
-            child: ElevatedButton(
-              onPressed: _nextPage,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    isLast ? 'ابدأ الآن' : 'التالي',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 52),
+              child: ElevatedButton(
+                onPressed: _nextPage,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(width: 8),
-                  Icon(isLast ? Icons.check : Icons.arrow_back, size: 20),
-                ],
+                  elevation: 0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isLast ? 'ابدأ الآن' : 'التالي',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(isLast ? Icons.check : Icons.arrow_back, size: 20),
+                  ],
+                ),
               ),
             ),
           ),
@@ -184,11 +184,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
 class _OnboardingData {
   final IconData icon;
+  final String asset;
   final String title;
   final String subtitle;
 
   const _OnboardingData({
     required this.icon,
+    required this.asset,
     required this.title,
     required this.subtitle,
   });
@@ -201,34 +203,83 @@ class _OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return AppConstrainedContent(
+      maxWidth: 560,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.primarySurface,
-                shape: BoxShape.circle,
+            AppSurfaceCard(
+              padding: EdgeInsets.zero,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(11),
+                child: Stack(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 1.55,
+                      child: Image.asset(
+                        data.asset,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              AppColors.neutral.withAlpha(190),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    PositionedDirectional(
+                      start: 14,
+                      end: 14,
+                      bottom: 14,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primaryContainer,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(data.icon, color: AppColors.primary),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              data.title,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Icon(data.icon, size: 56, color: AppColors.primary),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 28),
             Text(
               data.title,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             Text(
               data.subtitle,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textMuted,
-                height: 1.6,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),
           ],

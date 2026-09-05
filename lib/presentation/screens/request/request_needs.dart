@@ -278,7 +278,6 @@ class _RequestNeedsStepState extends State<RequestNeedsStep> {
       padding: const EdgeInsets.all(20),
       child: SizedBox(
         width: double.infinity,
-        height: 54,
         child: ElevatedButton(
           onPressed: () {
             widget.data.equipment = List.of(_selectedEquipment);

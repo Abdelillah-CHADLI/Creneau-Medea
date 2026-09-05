@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_components.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -21,7 +22,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final user = authService.currentUser;
     _nameController.text = user?.fullname ?? '';
     _phoneController.text = user?.phoneNumber ?? '';
-    _position = user?.position ?? 'وسط';
+    _position = user?.position;
   }
 
   @override
@@ -37,6 +38,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('الرجاء إدخال الاسم الكامل')),
       );
+      return;
+    }
+    if (_position == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('اختر مركز لعبك قبل الحفظ')));
       return;
     }
     setState(() => _saving = true);
@@ -65,20 +72,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            border: Border.symmetric(
-              vertical: BorderSide(color: AppColors.accent, width: 2),
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(context),
-                Expanded(child: _buildBody(context)),
-                _buildSaveBar(context),
-              ],
-            ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(child: _buildBody(context)),
+              _buildSaveBar(context),
+            ],
           ),
         ),
       ),
@@ -86,26 +86,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: const Icon(
-              Icons.arrow_forward_ios,
-              size: 22,
-              color: AppColors.textDark,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            'تعديل الملف الشخصي',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const Spacer(),
-          const SizedBox(width: 22),
-        ],
+    return AppTopBar(
+      title: 'تعديل الملف الشخصي',
+      subtitle: 'اجعل بياناتك واضحة للمنظّمين',
+      showLogo: false,
+      leading: IconButton(
+        tooltip: 'رجوع',
+        onPressed: () => Navigator.of(context).pop(),
+        icon: const Icon(Icons.arrow_forward_ios, size: 20),
       ),
     );
   }
@@ -113,38 +101,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildBody(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('الاسم الكامل', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _nameController,
-            decoration: _decoration(Icons.person_outline, 'محمد شادي'),
-          ),
-          const SizedBox(height: 16),
-          Text('رقم الهاتف', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _phoneController,
-            keyboardType: TextInputType.phone,
-            decoration: _decoration(Icons.phone, '0555 12 34 56'),
-          ),
-          const SizedBox(height: 16),
-          Text('المركز', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            initialValue: _position,
-            decoration: _decoration(Icons.sports_soccer, 'المركز'),
-            items: const [
-              DropdownMenuItem(value: 'هجوم', child: Text('هجوم')),
-              DropdownMenuItem(value: 'وسط', child: Text('وسط')),
-              DropdownMenuItem(value: 'دفاع', child: Text('دفاع')),
-              DropdownMenuItem(value: 'حارس مرمى', child: Text('حارس مرمى')),
-            ],
-            onChanged: (v) => setState(() => _position = v),
-          ),
-        ],
+      child: AppConstrainedContent(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'الاسم الكامل',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _nameController,
+              decoration: _decoration(Icons.person_outline, 'محمد شادي'),
+            ),
+            const SizedBox(height: 16),
+            Text('رقم الهاتف', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: _decoration(Icons.phone, '0555 12 34 56'),
+            ),
+            const SizedBox(height: 16),
+            Text('المركز', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _position,
+              decoration: _decoration(
+                Icons.sports_soccer,
+                'اختر مركزك الأساسي',
+              ),
+              items: const [
+                DropdownMenuItem(value: 'هجوم', child: Text('هجوم')),
+                DropdownMenuItem(value: 'وسط', child: Text('وسط')),
+                DropdownMenuItem(value: 'دفاع', child: Text('دفاع')),
+                DropdownMenuItem(value: 'حارس مرمى', child: Text('حارس مرمى')),
+              ],
+              onChanged: (v) => setState(() => _position = v),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -175,8 +171,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 52,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52),
           child: ElevatedButton.icon(
             onPressed: _saving ? null : _save,
             icon: _saving
@@ -189,10 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   )
                 : const Icon(Icons.check, size: 20),
-            label: const Text(
-              'حفظ التعديلات',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            label: const Text('حفظ التعديلات'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
